@@ -1,0 +1,32 @@
+Project Description:
+Multi-use slide puzzle game. Using pygame, I am going to create a slide puzzle game with numerous features:
+	- Standard numeric board
+	- Ability to import images to turn into slide puzzles
+	- A solver which can show the next move, until completion
+	- A more complex slide puzzle game, in which the puzzle pieces are pieces of a maze, and the user moves a player between the pieces, perhaps constrained by time or number of moves
+	- A competitive mode, in which two players can face off to see who can get the fastest time, maybe using web sockets once project reaches MVP stage
+	- Maybe more stuff, still thinking
+
+Competitive Analysis:
+	- Slide puzzles are a well known type of puzzle, so of course there are already ways to play slide puzzles and solve them
+	- However, I have not found a solver written in Python 3
+	- Additionally, I could not find the maze game I had outlined, or the competitive mode outlined, so these would be hopefully completely original
+
+Structural Plan: 
+	- The pieces of the puzzle are pygame sprites.
+	- I plan on there being some sort of menu, which respond to mouse presses to select different modes of the game, or provide some other function, such as putting a number label on picture pieces
+	- Most of the code, except for the solver, will be object oriented
+
+Algorithmic Plan:
+I did some research on slide puzzle solvers, which I believe will be the most complex part of the project. Obviously, the puzzle can't really be brute forced like a sudoku solver, or maze solver, through standard backtracking. There is high game depth, and the puzzle is not guarenteed to complete itself after going through every move. That being said, I will need to implement some kind of heuristic function, combined with backtracking. In puzzles like this, manhattan distance is a common heuristic. Additionally, the total number of displaced tiles could be used as a heuristic. These heuristics, combined with an A* search algorithm and backtracking algorithm, could lead to a solution. Of course, I still need to do a lot of research on this topic.
+
+Timeline Plan:
+I want to get all the basic features implemented by TP2. At that point, the solver may be unoptimized and the interface will need some work. Additionally, I may only have a few levels of the maze game, some might be added by TP3
+
+Version Control Plan:
+The code will be uploaded to github at every TP meeting:
+https://github.com/thomasmckee/Slide-Puzzle
+
+Module List:
+	- Pygame
+	- Possibly web sockets once project reaches MVP

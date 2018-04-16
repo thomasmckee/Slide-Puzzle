@@ -23,14 +23,25 @@ class Block(GameObject):
         #Cutting up the image into 4x4 
         for i in range(rows):
             for j in range(cols):
-                subImage = Block.scaled.subsurface(i*cellWidth, j*cellWidth,
-                                            cellWidth, cellWidth)
+                subImage = Block.scaled.subsurface( j*cellWidth, i*cellWidth,
+                                                    cellWidth, cellWidth)
                 Block.images.append(subImage)
         Block.images.pop()
         Block.seen = set()
         Block.board = []
 
     def __init__(self, x, y):
+    #Test code for creating solved board
+        '''
+        for i in range(15):
+            if i not in Block.seen:
+                image = Block.images[i]
+                Block.board.append(i)
+                Block.seen.add(i)
+                if i == 14:
+                    Block.board.append(15)
+                break
+        '''
         self.boardLen = 15
         #Messy way to randomly assort blocks, but not sure if it can be improved
         while True:
@@ -44,8 +55,9 @@ class Block(GameObject):
                 if len(Block.seen) == self.boardLen:
                     Block.board.append(self.boardLen)
                 break
+        
         super(Block, self).__init__(x, y, image, 0)
-    
+        
     #Simple function for updating new coordinates of blocks
     def update(self, x, y, w, h):
         self.x = x

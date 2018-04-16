@@ -9,6 +9,8 @@ class Game(PygameGame):
 #https://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html
 #However, all of this code is original
     def isValidBoard(self, board):
+        if board == list(range(len(board))):
+            return True
         inversions = 0
         for i in range(len(board)):
             check = board[i:]
@@ -19,15 +21,16 @@ class Game(PygameGame):
             if inversions % 2 == 0:
                 return True
         elif len(board) % 2 == 0:
-            if (board.index(0)//len(board)) % 2 == 0:
+            if (board.index(self.boardL)//len(board)) % 2 == 0:
                 if inversions % 2 == 1:
                     return True
-            elif (board.index(0)//len(board)) % 2 == 1:
+            elif (board.index(self.boardL)//len(board)) % 2 == 1:
                 if inversions % 2 == 0:
                     return True
         return False
     
     def init(self):
+        self.gameWon = False
         Block.init()
         self.blocks = pygame.sprite.Group()
         self.rows = 4
@@ -40,8 +43,8 @@ class Game(PygameGame):
                 if i+j == 6:
                     continue
                 #Calculating location of blocks and adding them to sprite group
-                x = i*(self.blockWidth)+(self.blockWidth/2)
-                y = j*(self.blockWidth)+(self.blockWidth/2)
+                x = j*(self.blockWidth)+(self.blockWidth/2)
+                y = i*(self.blockWidth)+(self.blockWidth/2)
                 self.blocks.add(Block(x, y))
         #Loading up the blank and adding it to sprite group
         Blank.init()
@@ -93,7 +96,10 @@ class Game(PygameGame):
                 block.update(   block.x + (self.blockWidth * dx), 
                                 block.y + (self.blockWidth * dy),
                                 self.width, self.height)
-    
+        #Temporary win notification until better interface created
+        if Block.board == list(range(self.boardL+1)):
+            self.gameWon = True
+            print('You Win!')
     #Drawing the blocks
     def redrawAll(self, screen):
         self.blocks.draw(screen)

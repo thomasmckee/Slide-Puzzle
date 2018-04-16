@@ -1,18 +1,6 @@
-'''
-pygamegame.py
-created by Lukas Peraza
- for 15-112 F15 Pygame Optional Lecture, 11/11/15
+#This pygame framework was created by Lukas Peraza:
+#https://github.com/LBPeraza/Pygame-Asteroids/blob/master/Asteroids/pygamegame.py
 
-use this code in your term project if you want
-- CITE IT
-- you can modify it to your liking
-  - BUT STILL CITE IT
-
-- you should remove the print calls from any function you aren't using
-- you might want to move the pygame.display.flip() to your redrawAll function,
-    in case you don't need to update the entire display every frame (then you
-    should use pygame.display.update(Rect) instead)
-'''
 import pygame
 
 
