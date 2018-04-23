@@ -1,0 +1,29 @@
+TP2 Update
+Changes -
+
+Put more thought into details of both the image mode and maze mode, and general UI:
+
+Interface ideas:
+- Boards will always be square, but the screen will have a 5:6 ratio, what remains after the 1:1 square is used for UI
+- Game starts at main menu, can then navigate to image, maze, or competitive mode
+	- If maze mode, opens level selection menu ***
+	- Each mode will have a button to return to the menu
+
+Image ideas:
+- Image mode has a "hint" button that will display numbers that correlate to their desired final position
+- Image mode will have a "solve" button that will display a star on the next piece that should be moved, based off of and algorithm I create ***
+- Menu to select image from existing file in computer to be uploaded (not sure if viable?) ***
+
+Maze Ideas:
+- Want to think of some kind of real theme for the game to implement meaningful graphics, rather just plain colored shapes ***
+- Universal constrictions for maze mode:
+	- Player is limited by time and number of moves to create difficulty
+- The maze mode will have ~5 levels, each will have a unique theme (i.e. different game rules, new sprites) ***
+	Some ideas for level rules/themes:
+	- Increasing board len for each level (Lv 1/2 = 4, lv 3/4 = 5, lv5 = 6)
+	- Certain squares are statically marked (don't move if square moves), these marked squares must be visited by the player for the level to complete
+	- Projectiles travel across the screen, if they collide with the player, you lose
+	- One or more statically located powerups or anti-powerups that let the player do something like gain an extra life, make them stop moving for 3 seconds, give extra moves, etc
+	- Combination of above 3 for final level
+
+*** = Idea not currently fully implemented

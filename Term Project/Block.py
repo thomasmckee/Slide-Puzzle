@@ -31,7 +31,7 @@ class Block(GameObject):
         Block.board = []
 
     def __init__(self, x, y):
-    #Test code for creating solved board
+        #Test code for creating solved board
         '''
         for i in range(15):
             if i not in Block.seen:
@@ -50,12 +50,12 @@ class Block(GameObject):
             if r not in Block.seen:
                 image = Block.images[r]
                 Block.seen.add(r)
+                self.index = r
                 #Creating a numeric board for easier legality checking
                 Block.board.append(r)
                 if len(Block.seen) == self.boardLen:
                     Block.board.append(self.boardLen)
                 break
-        
         super(Block, self).__init__(x, y, image, 0)
         
     #Simple function for updating new coordinates of blocks

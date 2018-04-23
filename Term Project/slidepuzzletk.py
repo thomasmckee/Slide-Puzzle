@@ -61,9 +61,10 @@ def endBoard(n):
 def init(data):
     data.time1 = time.time()
     data.time2 = 0
-    data.n = 4
-    data.board = makeBoard(data.n)
-    #data.board = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 0, 15]]
+    data.n = 3
+    #data.board = makeBoard(data.n)
+    data.board = [[8, 2, 7], [0, 4, 1], [3, 5, 6]]
+
     data.boardLst = flattenList(data.board)
     data.endBoard = endBoard(data.n)
     data.moves = 0
@@ -245,3 +246,5 @@ def run(width=500, height=500):
     root.mainloop()  # blocks until window is closed
     print("bye!")
 run()
+
+#solve([8, 3, 7, 6, 0, 4, 2, 5, 1])

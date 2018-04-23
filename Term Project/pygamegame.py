@@ -37,7 +37,7 @@ class PygameGame(object):
         ''' return whether a specific key is being held '''
         return self._keys.get(key, False)
 
-    def __init__(self, width=600, height=400, fps=50, title="112 Pygame Game"):
+    def __init__(self, width=500, height=600, fps=50, title="112 Pygame Game"):
         self.width = width
         self.height = height
         self.fps = fps
