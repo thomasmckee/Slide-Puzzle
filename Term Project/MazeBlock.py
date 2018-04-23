@@ -9,14 +9,16 @@ class MazeBlock(GameObject):
         #Creating a board that will use boolean values to determine legal
         #player moves later
         MazeBlock.board = []
-    def __init__(self, x, y, dirs):
+    def __init__(self, x, y, dirs, rows):
         #Scaling the image
-        self.tile = pygame.transform.scale(MazeBlock.image, (125, 125))
+        self.rows = rows
+        self.width = 500
+        self.blockWidth = int(self.width / self.rows)
+        self.tile = pygame.transform.scale(MazeBlock.image, (self.blockWidth, self.blockWidth))
         self.n, self.e, self.s, self.w = dirs[0], dirs[1], dirs[2], dirs[3]
         MazeBlock.board.append([self.n, self.e, self.s, self.w])
-        #Temporary hardcoding for 4x4, adds a representation of the blank space
-        #to the physical (not graphical) board
-        if len(MazeBlock.board) == 15:
+        #Adding blank once all other pieces are there
+        if len(MazeBlock.board) == self.rows**2-1:
             MazeBlock.board.append(0)
         super(MazeBlock, self).__init__(x, y, self.tile, 0)
         #Drawing on the piece based off of inputs
@@ -26,20 +28,23 @@ class MazeBlock(GameObject):
         black = (0, 0, 0)
         white = (255, 255, 255)
         #Creating an outline
-        self.r1 = (0, 0, 125, 125)
-        pygame.draw.rect(self.tile, black, self.r1, 5)
+        self.outline = (0, 0, self.blockWidth, self.blockWidth)
+        pygame.draw.rect(self.tile, black, self.outline, 5)
         #Drawing path based off of inputted direction values from initiation
+        L1 = (1/5)*self.blockWidth
+        L2 = (2/5)*self.blockWidth
+        L3 = (3/5)*self.blockWidth
         if self.n:
-            r = (50, 0, 25, 75)
+            r = (L2, 0, L1, L3)
             pygame.draw.rect(self.tile, black, r)
         if self.e:
-            r = (50, 50, 75, 25)
+            r = (L2, L2, L3, L1)
             pygame.draw.rect(self.tile, black, r)
         if self.s:
-            r = (50, 50, 25, 75)
+            r = (L2, L2, L1, L3)
             pygame.draw.rect(self.tile, black, r)
         if self.w:
-            r = (0, 50, 75, 25)
+            r = (0, L2, L3, L1)
             pygame.draw.rect(self.tile, black, r)
     #Standard update fct
     def update(self, x, y, w, h):
