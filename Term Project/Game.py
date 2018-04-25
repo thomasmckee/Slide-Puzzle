@@ -1,16 +1,9 @@
 from pygamegame import PygameGame
-from Block import Block
-from Blank import Blank
-from MazeBlock import MazeBlock
-from Player import Player
 from Image import Image
 from Maze import Maze
 import pygame
 import time
 pygame.font.init()
-
-#Special Levels
-#1v1 mode
 
 class Game(PygameGame):
     #Init for start, the menu
