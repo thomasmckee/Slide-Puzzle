@@ -52,27 +52,20 @@ def solvedBoard(board):
     return board == list(range(len(board)))
 
 def depthSearchWrapper(board, depth):
-    boardList = []
-    moveList = []
     def depthSearch(board, depth, tempList = []):
         L = int(math.sqrt(len(board)))
-        if depth == 0 or solvedBoard(board):
-            boardList.append(board)
-            moveList.append(tempList)
+        if solvedBoard(board):
+            return tempList
+        if depth == 0:
+            if getScore(board) < minScore[1]:
+                m = [tempList, getScore(board)]
         else:
             for move in getMoves(board):
                 tempList.append(move)
                 newBoard = makeMove(board, move, L)
                 depthSearch(newBoard, depth - 1, tempList)
     depthSearch(board, depth)
-    min = 10000
-    minIndex = 0
-    for i in range(len(boardList)):
-        if getScore(boardList[i]) < min:
-            min = getScore(boardList[i])
-            minIndex = i
-    print(boardList[minIndex])
-    print(moveList[minIndex])
+    return minScore[0]
 
 def solve(board, seenList = []):
     seenList.append(board)

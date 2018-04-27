@@ -12,7 +12,7 @@ class Hole(GameObject):
         self.blockWidth = int(self.width / rows)
         self.playerWidth = int((2/5)*self.blockWidth)
         self.scaled = pygame.transform.scale(Hole.image, (self.playerWidth, self.playerWidth))
-        super(Hole, self).__init__(x, y, self.scaled, self.playerWidth)
+        super(Hole, self).__init__(x, y, self.scaled, self.playerWidth / 2)
     def update(self, w, h):
         super(Hole, self).update()
 
@@ -28,7 +28,7 @@ class Trap(GameObject):
         self.blockWidth = int(self.width / rows)
         self.playerWidth = int((2/5)*self.blockWidth)
         self.scaled = pygame.transform.scale(Trap.image, (self.playerWidth, self.playerWidth))
-        super(Trap, self).__init__(x, y, self.scaled, self.playerWidth)
+        super(Trap, self).__init__(x, y, self.scaled, self.playerWidth / 2)
     def update(self, w, h):
         super(Trap, self).update()
 
@@ -146,13 +146,20 @@ class Player(GameObject):
         #Loading and scaling player image
         Player.image = pygame.image.load('images/player.png').convert_alpha()
     #Using the super (gameobject) init and update
-    def __init__(self, x, y, rows):
+    def __init__(self, x, y, rows, dir):
         self.rows = rows
         self.width = 500
         self.blockWidth = int(self.width / rows)
         self.playerWidth = int((2/5)*self.blockWidth)
         self.scaled = pygame.transform.scale(Player.image, (self.playerWidth, self.playerWidth))
-        super(Player, self).__init__(x, y, self.scaled, 0)
+        self.rotated = self.scaled
+        if dir == 'N':
+            self.rotated = pygame.transform.rotate(self.scaled, 180)
+        if dir == 'E':
+            self.rotated = pygame.transform.rotate(self.scaled, 90)
+        if dir == 'W':
+            self.rotated = pygame.transform.rotate(self.scaled, 270)
+        super(Player, self).__init__(x, y, self.rotated, 0)
     def update(self, x, y, w, h):
         self.x = x
         self.y = y

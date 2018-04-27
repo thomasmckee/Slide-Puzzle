@@ -15,7 +15,10 @@ class Maze(object):
         self.mouseClicks = 0
         self.width = 500
         self.height = 600
+        self.c = 10
         self.fps = 50
+        self.move = None
+        self.moveCount = 0
         self.gameMode = 'Maze'
         self.gameWon = False
         self.gameLost = False
@@ -60,6 +63,8 @@ class Maze(object):
         self.traps.empty()
         self.hole.empty()
         self.timerCalled = 0
+        self.move = None
+        self.moveCount = 0
         #Creating the levels
         if level == 1:
             self.rows = 4
@@ -67,10 +72,10 @@ class Maze(object):
             #Each level is constricted by different time/ num moves
             self.remainingMoves = 30
             self.remainingTime = 30
-            self.maze = [   horz, horz, cross, downt, 
-                            upt, tlc, trc, blc, 
+            self.maze = [   horz, vert, cross, downt, 
+                            blank, tlc, trc, blc, 
                             brc, blank, horz, blank, 
-                            horz, blank, blank]    
+                            horz, upt, blank]    
         if level == 2:
             self.rows = 4
             self.blockWidth = self.width / self.rows
@@ -88,8 +93,8 @@ class Maze(object):
         if level == 3:
             self.rows = 5
             self.blockWidth = self.width / self.rows
-            self.remainingMoves = 70
-            self.remainingTime = 70
+            self.remainingMoves = 60
+            self.remainingTime = 60
             self.maze = [   brc, tlc, rightt, blank, horz,
                             downt, blank, cross, blc, blank,
                             upt, vert, blank, trc, blank,
@@ -129,6 +134,8 @@ class Maze(object):
             self.points.add(Point(w*11, w, 6))
             self.points.add(Point(w*7, w*7, 6))
             self.points.add(Point(w, w*11, 6))
+        if level == 'RAND':
+            self.createRandom(self)
         self.coords = []
         MazeBlock.board = []
         self.playerIndex = 0
@@ -153,7 +160,7 @@ class Maze(object):
         self.blocks.add(Blank(blankInitial, blankInitial, self.rows))
         #Initiating the player
         Player.init()
-        self.player = Player(self.blockWidth/2-10, self.blockWidth/2, self.rows)
+        self.player = Player(self.blockWidth/2, self.blockWidth/2, self.rows, 'S')
         self.playerSprite = pygame.sprite.Group()
         self.playerSprite.add(self.player)
         #Creating end goal (hole)
@@ -161,6 +168,60 @@ class Maze(object):
         hole = Hole(w, w, self.rows)
         self.hole.add(hole)
     
+    def createRandom(self):
+        #Creating the maze pieces
+        cross = (True, True, True, True)
+        upt = (True, True, False, True)
+        downt = (False, True, True, True)
+        rightt = (True, True, True, False)
+        leftt = (True, False, True, True)
+        tlc = (True, False, False, True)
+        trc = (True, True, False, False)
+        blc = (False, False, True, True)
+        brc = (False, True, True, False)
+        blank = (False, False, False, False)
+        vert = (True, False, True, False)
+        horz = (False, True, False, True)
+        blockList = [cross, upt, downt, rightt, leftt, tlc, trc, blc, brc,
+        vert, horz]
+        #Emptying sprites and resetting timer every time a level is loaded
+        self.blocks.empty()
+        self.points.empty()
+        self.enemies.empty()
+        self.traps.empty()
+        self.hole.empty()
+        self.timerCalled = 0
+        self.move = None
+        self.moveCount = 0
+        self.maze = []
+        self.rows = 6
+        self.blockWidth = self.width / self.rows
+        self.remainingMoves = 200
+        self.remainingTime = 200
+        seen = set()
+        for i in range(10):
+            self.maze.append(blank)
+        for j in range(25):
+            self.maze.append(random.choice(blockList))
+        random.shuffle(self.maze)
+        self.maze[0] = brc
+        for k in range(3):
+            w = self.blockWidth / 2
+            r1 = random.choice(range(3, 10, 2))
+            r2 = random.choice(range(3, 10, 2))
+            while (r1, r2) in seen:
+                r1 = random.choice(range(3, 10, 2))
+                r2 = random.choice(range(3, 10, 2))
+            seen.add((r1, r2))
+            self.traps.add(Trap(w*r1, w*r2, 6))
+            r3 = random.choice(range(3, 10, 2))
+            r4 = random.choice(range(3, 10, 2))
+            while (r3, r4) in seen:
+                r3 = random.choice(range(3, 10, 2))
+                r4 = random.choice(range(3, 10, 2))
+            seen.add((r3, r4))
+            self.points.add(Point(w*r3, w*r4, 6))
+        
     def mousePressedMenu(self, x, y):
         #Ignore the first click because it transfers from menu screen
         self.mouseClicks += 1
@@ -184,8 +245,10 @@ class Maze(object):
             if 425 < x < 475:
                 if self.maxLevel >= 5:
                     self.level = 5
-        if 150 < x < 350 and 400 < y < 500:
+        if 175 < x < 325 and 500 < y < 575:
             self.gameMode = 'Menu'
+        if 175 < x < 325 and 350 < y < 425:
+            self.level = 'RAND'
         #Getting the blocks for chosen level
         self.getLevelBlocks(self, self.level)
 
@@ -202,6 +265,9 @@ class Maze(object):
                 self.level = 0
                 self.gameWon = False
                 self.gameLost = False
+            return
+        #Can't move blocks while mouse is moving:
+        if self.move != None:
             return
         #Can't move block with player on it
         if  abs(self.player.x - x) < self.blockWidth / 2 and \
@@ -220,7 +286,7 @@ class Maze(object):
         cY = y // self.blockWidth
         i  = int(cY * self.rows + cX)
         dx, dy = 0, 0
-        if abs(self.bX-cX) + abs(self.bY-cY) < 2: #If valid move
+        if abs(self.bX-cX) + abs(self.bY-cY) == 1: #If valid move
             self.remainingMoves -= 1
             if self.remainingMoves == 0:
                 self.gameLost = True
@@ -251,9 +317,26 @@ class Maze(object):
                 block.update(   block.x + (self.blockWidth * dx), 
                                 block.y + (self.blockWidth * dy),
                                 self.width, self.height)
+    
+    def movePlayer(self, dir):
+        x, y = self.player.x, self.player.y
+        if dir == 'N':
+            d = self.blockWidth / self.c
+            self.player.update(x, y-d, self.width, self.height)
+        if dir == 'E':
+            d = self.blockWidth / self.c
+            self.player.update(x+d, y, self.width, self.height)
+        if dir == 'S':
+            d = self.blockWidth / self.c
+            self.player.update(x, y+d, self.width, self.height)
+        if dir == 'W':
+            d = self.blockWidth / self.c
+            self.player.update(x-d, y, self.width, self.height)
 
     def keyPressed(self, keyCode, modifier):
         if self.level == 0:
+            return
+        if self.move != None:
             return
         #Movement of Player:
         if keyCode == pygame.K_d:
@@ -266,9 +349,11 @@ class Maze(object):
             #Testing for validity of movement, then moving
             if  MazeBlock.board[self.playerIndex][1] and \
                 MazeBlock.board[self.playerIndex+1][3]:
-                self.player.update( self.player.x + self.blockWidth, 
-                                    self.player.y, 
-                                    self.width, self.height)
+                x, y = self.player.x, self.player.y
+                self.playerSprite.empty()
+                self.player = Player(x, y, self.rows, 'E')
+                self.playerSprite.add(self.player)
+                self.move = 'E'
                 self.playerIndex += 1
         #Same but for other directions:
         if keyCode == pygame.K_w:
@@ -278,9 +363,11 @@ class Maze(object):
                 return
             if  MazeBlock.board[self.playerIndex][0] and \
                 MazeBlock.board[self.playerIndex-self.rows][2]:
-                self.player.update( self.player.x, 
-                                    self.player.y - self.blockWidth, 
-                                    self.width, self.height)
+                x, y = self.player.x, self.player.y
+                self.playerSprite.empty()
+                self.player = Player(x, y, self.rows, 'N')
+                self.playerSprite.add(self.player)
+                self.move = 'N'
                 self.playerIndex -= self.rows
         if keyCode == pygame.K_a:
             if self.playerIndex % self.rows == 0:
@@ -289,9 +376,11 @@ class Maze(object):
                 return
             if  MazeBlock.board[self.playerIndex][3] and \
                 MazeBlock.board[self.playerIndex-1][1]:
-                self.player.update( self.player.x - self.blockWidth, 
-                                    self.player.y, 
-                                    self.width, self.height)
+                x, y = self.player.x, self.player.y 
+                self.playerSprite.empty()
+                self.player = Player(x, y, self.rows, 'W')
+                self.playerSprite.add(self.player)
+                self.move = 'W'
                 self.playerIndex -= 1
         if keyCode == pygame.K_s:
             if self.playerIndex // self.rows == self.rows - 1:
@@ -300,28 +389,12 @@ class Maze(object):
                 return
             if  MazeBlock.board[self.playerIndex][2] and \
                 MazeBlock.board[self.playerIndex+self.rows][0]:
-                self.player.update( self.player.x, 
-                                    self.player.y + self.blockWidth, 
-                                    self.width, self.height)
+                x, y = self.player.x, self.player.y
+                self.playerSprite.empty()
+                self.player = Player(x, y, self.rows, 'S')
+                self.playerSprite.add(self.player)
+                self.move = 'S'
                 self.playerIndex += self.rows
-        #Checking collisions in keyPressed since move based:
-        for pt in pygame.sprite.groupcollide(self.points, self.playerSprite,
-        True, False, pygame.sprite.collide_circle):
-            #If mouse and cheese collide, delete cheese
-            pt.update(self.width, self.height)
-        if pygame.sprite.groupcollide(self.traps, self.playerSprite, False, False,
-        pygame.sprite.collide_circle):
-            #If mouse and mousetrap collide, lose level
-            self.gameLost = True
-        #Win conditions
-        if self.playerIndex == self.rows**2 - 1: #If play is at mousehole
-            if self.level >= self.maxLevel:
-                #Setting new max level if necessary
-                self.maxLevel = self.level + 1
-            if self.level == 2 or self.level == 5: 
-                if not len(self.points) == 0: #If all cheese taken
-                    return
-            self.gameWon = True
     
     #Creates an enemy coming from a random direction
     def spawnEnemy(self):
@@ -354,20 +427,45 @@ class Maze(object):
             if self.remainingTime == 0:
                 self.gameLost = True
         #Spawning enemies
-        if self.level == 4 or self.level == 5:
+        if self.level in [4, 5, 'RAND']:
             if self.timerCalled % 120 == 0:
                 if self.timerCalled > 300:
                     self.spawnEnemy(self)
             self.moveEnemy(self)
-            for enem in self.enemies:
-                if  enem.x > 600 or enem.x < -100 or \
-                    enem.y > 600 or enem.y < -100:
-                    #Deletes enemies once out of bounds
-                    self.enemies.remove(enem)
-            if pygame.sprite.groupcollide(self.playerSprite, self.enemies,
-            False, False, pygame.sprite.collide_circle):
-                self.gameLost = True
-                #If mouse collides with cat, game over
+        if self.move != None:
+            self.movePlayer(self, self.move)
+            self.moveCount += 1
+            if self.moveCount == self.c:
+                self.move = None
+                self.moveCount = 0
+        for pt in pygame.sprite.groupcollide(self.points, self.playerSprite,
+        True, False, pygame.sprite.collide_circle):
+            #If mouse and cheese collide, delete cheese
+            pt.update(self.width, self.height)
+        if pygame.sprite.groupcollide(self.traps, self.playerSprite, False, False,
+        pygame.sprite.collide_circle):
+            #If mouse and mousetrap collide, lose level
+            self.gameLost = True
+        for enem in self.enemies:
+            if  enem.x > 600 or enem.x < -100 or \
+                enem.y > 600 or enem.y < -100:
+                #Deletes enemies once out of bounds
+                self.enemies.remove(enem)
+        if pygame.sprite.groupcollide(self.playerSprite, self.enemies,
+        False, False, pygame.sprite.collide_circle):
+            self.gameLost = True
+            #If mouse collides with cat, game over
+        if pygame.sprite.groupcollide(self.playerSprite, self.hole,
+        False, False, pygame.sprite.collide_circle):
+            if self.level == 2 or self.level == 5:
+                if len(self.points) == 0:
+                    if self.level == self.maxLevel:
+                        self.maxLevel += 1
+                    self.gameWon = True
+            else:
+                if self.level == self.maxLevel:
+                    self.maxLevel += 1
+                self.gameWon = True
     
     def redrawAll(self, screen):
         #Setting up RGB values
@@ -401,11 +499,15 @@ class Maze(object):
                 pygame.draw.rect(screen, black, rls[i], 5)
                 leveltext = myfont.render('%d'%(i+1), True, black)
                 screen.blit(leveltext, (42+(i*100), 228))
-            #Drawing menu button
-            menurect = (150, 400, 200, 100)
+            #Drawing menu and random button
+            menurect = (175, 500, 150, 75)
             pygame.draw.rect(screen, black, menurect, 5)
             menutext = myfont.render('Menu', True, black)
-            screen.blit(menutext, (215, 430))
+            screen.blit(menutext, (215, 517))
+            randomrect = (175, 350, 150, 75)
+            pygame.draw.rect(screen, black, randomrect, 5)
+            randomtext = myfont.render('Random', True, black)
+            screen.blit(randomtext, (195, 365))
             return 
         #Drawing win and lose screens, with option to return to level selection
         if self.gameLost:
@@ -431,7 +533,7 @@ class Maze(object):
         #Drawing blocks
         self.blocks.draw(screen)
         #Fixing one weird graphical issue with scaling
-        if self.level == 5:
+        if self.level == 5 or self.level == 'RAND':
             pygame.draw.line(screen, black, (249, 0), (249, 500), 1)
             pygame.draw.line(screen, black, (0, 249), (500, 249), 1)
         #Drawing hole

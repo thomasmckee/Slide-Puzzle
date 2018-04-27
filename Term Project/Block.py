@@ -30,7 +30,7 @@ class Block(GameObject):
         Block.seen = set()
         Block.board = []
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, i = None):
         #Test code for creating solved board
         '''
         for i in range(15):
@@ -43,19 +43,26 @@ class Block(GameObject):
                 break
         '''
         self.boardLen = 15
+        if i != None:
+            image = Block.images[i]
+            Block.board.append(i)
+            self.index = i
+            if len(Block.board) == self.boardLen:
+                Block.board.append(self.boardLen)
         #Messy way to randomly assort blocks, but not sure if it can be improved
-        while True:
-            r = random.randint(0,self.boardLen - 1)
-            #Finding an index not already found
-            if r not in Block.seen:
-                image = Block.images[r]
-                Block.seen.add(r)
-                self.index = r
-                #Creating a numeric board for easier legality checking
-                Block.board.append(r)
-                if len(Block.seen) == self.boardLen:
-                    Block.board.append(self.boardLen)
-                break
+        else:
+            while True:
+                r = random.randint(0,self.boardLen - 1)
+                #Finding an index not already found
+                if r not in Block.seen:
+                    image = Block.images[r]
+                    Block.seen.add(r)
+                    self.index = r
+                    #Creating a numeric board for easier legality checking
+                    Block.board.append(r)
+                    if len(Block.seen) == self.boardLen:
+                        Block.board.append(self.boardLen)
+                    break
         super(Block, self).__init__(x, y, image, 0)
         
     #Simple function for updating new coordinates of blocks
@@ -63,3 +70,19 @@ class Block(GameObject):
         self.x = x
         self.y = y
         super(Block, self).update()
+
+class Blank(GameObject):
+    def init():
+        #Loading the blank image
+        Blank.image = pygame.image.load('images/blank.png').convert()
+    #Calling init and having update, same as Block class
+    def __init__(self, x, y, rows):
+        self.rows = rows
+        self.width = 500
+        self.blockWidth = int(self.width / self.rows)+1
+        self.scaled = pygame.transform.scale(Blank.image, (self.blockWidth, self.blockWidth))
+        super(Blank, self).__init__(x, y, self.scaled, 0)
+    def update(self, x, y, w, h):
+        self.x = x
+        self.y = y
+        super(Blank, self).update()

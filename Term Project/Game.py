@@ -1,9 +1,12 @@
 from pygamegame import PygameGame
 from Image import Image
 from Maze import Maze
+from Race import Race
 import pygame
 import time
 pygame.font.init()
+
+#upgrade ui, solver, image uploader
 
 class Game(PygameGame):
     #Init for start, the menu
@@ -17,6 +20,9 @@ class Game(PygameGame):
         if self.gameMode == 'Image':
             Image.mousePressed(Image, x, y)
             self.gameMode = Image.gameMode
+        if self.gameMode == 'Race':
+            Race.mousePressed(Race, x, y)
+            self.gameMode = Race.gameMode
         if self.gameMode == 'Maze':
             Maze.mousePressed(Maze, x, y)
             self.gameMode = Maze.gameMode
@@ -26,7 +32,10 @@ class Game(PygameGame):
         if 150 < x < 350 and 100 < y < 200:
             Image.init(Image)
             self.gameMode = 'Image'
-        if 150 < x < 350 and 300 < y < 400:
+        if 150 < x < 350 and 250 < y < 350:
+            Race.init(Race)
+            self.gameMode = 'Race'
+        if 150 < x < 350 and 400 < y < 500:
             Maze.init(Maze)
             self.gameMode = 'Maze'
     
@@ -35,9 +44,11 @@ class Game(PygameGame):
             Maze.keyPressed(Maze, keyCode, modifier)
 
     def timerFired(self, dt):
-        #Timer only needed in maze
+        #Timer only needed in maze and race
         if self.gameMode == 'Maze':
             Maze.timerFired(Maze, dt)
+        if self.gameMode == 'Race':
+            Race.timerFired(Race, dt)
 
     def redrawAll(self, screen):
         #Setting up RGB values for later use
@@ -50,17 +61,23 @@ class Game(PygameGame):
         if self.gameMode == 'Menu':
             #Defining and drawing rects for different buttons
             rect1 = (150, 100, 200, 100)
-            rect2 = (150, 300, 200, 100)
+            rect2 = (150, 250, 200, 100)
+            rect3 = (150, 400, 200, 100)
             pygame.draw.rect(screen, black, rect1, 5)
             pygame.draw.rect(screen, black, rect2, 5)
+            pygame.draw.rect(screen, black, rect3, 5)
             myfont = pygame.font.SysFont('Arial', 50)
-            textsurface1 = myfont.render('Image', True, black)
-            textsurface2 = myfont.render('Maze', True, black)
-            screen.blit(textsurface1,(195,120))
-            screen.blit(textsurface2,(200,320))
-        #Redraw for image slide puzzle mode
+            textsurface1 = myfont.render('Practice', True, black)
+            textsurface2 = myfont.render('Race', True, black)
+            textsurface3 = myfont.render('Maze', True, black)
+            screen.blit(textsurface1,(175, 120))
+            screen.blit(textsurface2,(200, 270))
+            screen.blit(textsurface3,(200, 420))
+        #Redraw for image, race, and maze modes
         if self.gameMode == 'Image':
             Image.redrawAll(Image, screen)
+        if self.gameMode == 'Race':
+            Race.redrawAll(Race, screen)
         if self.gameMode == 'Maze':
             Maze.redrawAll(Maze, screen)
 #Running the game
