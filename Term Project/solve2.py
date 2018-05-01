@@ -3,24 +3,6 @@ import copy
 import time
 import cProfile
 
-'''
-This solver implements the A* search algorithm to find the optimal solution
-of a slide puzzle. Originally, it was going to be used to used to solve a
-4x4 puzzle, but that requires and iterative-deepening A* algorithm and a 
-heursitic function more complex than manhattan distance to run in reasonable 
-time. Overall, it seemed to be outside the scope of this class, and definitely
-beyond my personal skill.
-
-For that reason, I chose to reduce the size of the image puzzle in the project
-to 3x3. Even so, for particularly difficult 3x3 boards, the solver may still 
-take minutes to find the optimal path. Most boards will find the optimal path
-in under 20 seconds, however.
-
-It is worth noting that whenever it finds a path, it will always be the optimal 
-one. Although its functionality is limited, the solver still correctly 
-implements the algorithm.
-'''
-
 #Making move on board
 def makeMove(board, move):
     L = int(math.sqrt(len(board)))
@@ -82,7 +64,7 @@ def solve(board):
     visited = 0
     seen = []
     queue = [] #List of paths, where a path is a sequence of moves
-    for move in getLegalMoves(board): #Getting initial paths and seen boards
+    for move in getLegalMoves(board): #Getting initial paths
         queue.append([move])
         newBoard = makeMove(board, move)
         seen.append(newBoard)
@@ -92,15 +74,15 @@ def solve(board):
         bestSteps = 0
         bestPath = None
         for path in queue:
-            #Score based off of A* = estimated distance to finish + current cost
+            #Score based off of A* = estimated distance to finish + current distance
             dist = mDist(makeMoves(board, path))
             steps = len(path)
             score = dist + steps
             #Checking if solved
             if dist == 0:
+                print('Nodes Visited:', visited)
                 return path
             #Finding best path that has not already been expanded
-            #In case of a tie, prefer path that is longer
             if score == bestScore:
                 if steps > bestSteps:
                     bestScore = score
@@ -111,6 +93,8 @@ def solve(board):
                 bestPath = path
                 bestSteps = steps
         visited += 1
+        if visited % 100 == 0:
+            print(visited)
         #Removing the path since it is going to be expanded
         queue.remove(bestPath)
         bestPathBoard = makeMoves(board, bestPath)
@@ -118,8 +102,6 @@ def solve(board):
         for move in getLegalMoves(bestPathBoard):
             newPath = bestPath + [move]
             newPathBoard = makeMoves(board, newPath)
-            #because unique paths can lead to common boards, checking if same
-            #boards exist in seen
             if newPathBoard not in seen:
                 seen.append(newPathBoard)
                 queue.append(newPath)
@@ -127,7 +109,6 @@ def solve(board):
         return search(queue, board, visited)
     return search(queue, board, visited)
 
-#This function copied from 15-112 website
 def callWithLargeStack(f,*args):
     import sys
     import threading
@@ -143,13 +124,12 @@ def callWithLargeStack(f,*args):
     return resultWrapper[0]
 
 
-#Some random test stuff 
-'''
+
 t1 = time.time()
 print(callWithLargeStack(solve,[7, 2, 8, 1, 5, 6, 0, 3, 4]))
 t2 = time.time()
 print('Time: %0.2f'%(t2-t1))
-'''
+
 #print(solve([8, 0, 7, 1, 5, 6, 2, 3, 4]))
 #830267145
 #018267345

@@ -1,24 +1,38 @@
 import pygame
 import random
+from Uploader import Uploader
 from GameObject import GameObject
 
 class Block(GameObject):
     @staticmethod
-    def init():
+    def init(r):
+        '''
+        Using try/except to see if something was uploaded, because if
+        uploader not loaded then attribute error
+        '''
+        try:
+            #If image successfully uploaded, use it
+            if Uploader.done:
+                fileName = Uploader.fileName
+            #Else use default image
+            else:
+                fileName = 'images/gameimage.jpg'
+        except: #If uploader not loaded, use default image
+            fileName = 'images/gameimage.jpg'
         #Loading the image
-        image = pygame.image.load('images/gameimage.jpg').convert()
+        image = pygame.image.load(fileName).convert()
         width, height = image.get_size()
         #Cropping the image so it is the largest possible square, \
         #starting from the top left corner
         L = min(width, height)
         cropSq = (0, 0, L, L)
         cropped = image.subsurface(cropSq)
-        puzzleWidth, puzzleHeight = 500, 500
+        puzzleWidth, puzzleHeight = 501, 501
         #Scaling to window size
         Block.scaled = pygame.transform.scale(  cropped, 
                                                 (puzzleWidth, puzzleHeight))
-        rows, cols = 4, 4
-        cellWidth = puzzleWidth / rows
+        rows, cols = r, r
+        cellWidth = puzzleWidth / rows 
         Block.images = []
         #Cutting up the image into 4x4 
         for i in range(rows):
@@ -30,7 +44,7 @@ class Block(GameObject):
         Block.seen = set()
         Block.board = []
 
-    def __init__(self, x, y, i = None):
+    def __init__(self, x, y, rows, i = None):
         #Test code for creating solved board
         '''
         for i in range(15):
@@ -42,7 +56,7 @@ class Block(GameObject):
                     Block.board.append(15)
                 break
         '''
-        self.boardLen = 15
+        self.boardLen = rows**2-1
         if i != None:
             image = Block.images[i]
             Block.board.append(i)

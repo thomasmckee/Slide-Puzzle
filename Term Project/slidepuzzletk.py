@@ -61,9 +61,9 @@ def endBoard(n):
 def init(data):
     data.time1 = time.time()
     data.time2 = 0
-    data.n = 3
+    data.n = 4
     #data.board = makeBoard(data.n)
-    data.board = [[8, 2, 7], [0, 4, 1], [3, 5, 6]]
+    data.board = [[5, 8, 0, 2], [15, 14, 12, 7], [9, 6, 10, 13], [11, 3, 4, 1]]
 
     data.boardLst = flattenList(data.board)
     data.endBoard = endBoard(data.n)

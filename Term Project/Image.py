@@ -1,5 +1,7 @@
 from Blank import Blank
 from Block import Block
+from Star import Star
+import solver
 import pygame
 
 class Image(object):
@@ -11,7 +13,7 @@ class Image(object):
             return True
         inversions = 0
         for i in range(len(board)):
-            if i == 15:
+            if i == 8:
                 pass
             check = board[i:]
             for j in check:
@@ -31,13 +33,17 @@ class Image(object):
         
     def init(self):
         self.gameMode = 'Image'
+        self.solve = False
+        self.solveSteps = []
         self.width = 500
         self.height = 600
+        Star.init()
+        self.star = pygame.sprite.Group()
         self.hint = False
         self.gameWon = False
-        Block.init()
+        self.rows = 3
+        Block.init(self.rows)
         self.blocks = pygame.sprite.Group()
-        self.rows = 4
         self.puzzleWidth = 500
         self.blockWidth = self.puzzleWidth / self.rows
         self.boardL = self.rows**2-1
@@ -49,10 +55,10 @@ class Image(object):
                 #Calculating location of blocks and adding them to sprite group
                 x = j*(self.blockWidth)+(self.blockWidth/2)
                 y = i*(self.blockWidth)+(self.blockWidth/2)
-                self.blocks.add(Block(x, y))
+                self.blocks.add(Block(x, y, self.rows))
         #Loading up the blank and adding it to sprite group
         Blank.init()
-        blankInitial = self.puzzleWidth * (7/8)
+        blankInitial = self.puzzleWidth * (5/6)
         self.blocks.add(Blank(blankInitial, blankInitial, self.rows))
         #If the board that was created is not valid, make a new one until it is
         if not self.isValidBoard(self, Block.board):
@@ -76,16 +82,40 @@ class Image(object):
         if 333 < x < 500 and 500 < y < 600:
             self.hint = not self.hint
             return 
+        if 166 < x < 333 and 500 < y < 600:
+            if self.solve:
+                self.solve = False
+                return
+            self.star.empty()
+            self.solveSteps = solver.callWithLargeStack(solver.solve, Block.board)
+            xI, yI = self.solveSteps[0][0], self.solveSteps[0][1]
+            newStarX = self.blockWidth/2 + (xI*self.blockWidth)
+            newStarY = self.blockWidth/2 + (yI*self.blockWidth)
+            self.star.add(Star(newStarX, newStarY, self.rows))
+            self.solve = True
         #Calculating the index of the blank 
         self.bI = Block.board.index(self.boardL)
         self.bX = self.bI %  self.rows
         self.bY = self.bI // self.rows
         #Calculating index of the click
-        cX = x // self.blockWidth
-        cY = y // self.blockWidth
+        cX = int(x // self.blockWidth)
+        cY = int(y // self.blockWidth)
+        #During solving, only correct moves allowed
+        if self.solve:
+            if [cX, cY] != self.solveSteps[0]:
+                return
         i  = int(cY * self.rows + cX)
         dx, dy = 0, 0
         if abs(self.bX-cX) + abs(self.bY-cY) < 2: #If valid move
+            #Updating solve move
+            if self.solve:
+                self.solveSteps.pop(0)
+                self.star.empty()
+                if len(self.solveSteps) > 0:
+                    xI, yI = self.solveSteps[0][0], self.solveSteps[0][1]
+                    newStarX = self.blockWidth/2 + (xI*self.blockWidth)
+                    newStarY = self.blockWidth/2 + (yI*self.blockWidth)
+                    self.star.add(Star(newStarX, newStarY, self.rows))
             #Updating the numeric board that checks legality
             Block.board[i], Block.board[self.bI] = \
             Block.board[self.bI], Block.board[i]
@@ -102,6 +132,7 @@ class Image(object):
                         dy = 1
                     elif self.bY < cY:
                         dy = -1
+    
                     #Updating the block 
                     block.update(   block.x + (self.blockWidth * dx), 
                                     block.y + (self.blockWidth * dy),
@@ -146,6 +177,9 @@ class Image(object):
         screen.blit(textsurface1, (390, 530))
         screen.blit(textsurface2, (45, 530))
         screen.blit(textsurface3, (215, 530))
+        #Drawing solve step
+        if self.solve:
+            self.star.draw(screen)
         #If hints are activated, numbers representing desired final
         #location will show up on the pieces
         if self.hint:

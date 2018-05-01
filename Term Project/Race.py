@@ -42,9 +42,9 @@ class Race(object):
         self.p1Time = 0
         self.p2Time = 0
         self.clicks = 0
-        Block.init()
-        self.blocks = pygame.sprite.Group()
         self.rows = 4
+        Block.init(self.rows)
+        self.blocks = pygame.sprite.Group()
         self.puzzleWidth = 500
         self.blockWidth = self.puzzleWidth / self.rows
         self.boardL = self.rows**2-1
@@ -58,7 +58,7 @@ class Race(object):
                 x = j*(self.blockWidth)+(self.blockWidth/2)
                 y = i*(self.blockWidth)+(self.blockWidth/2)
                 self.coords.append((x, y))
-                self.blocks.add(Block(x, y))
+                self.blocks.add(Block(x, y, self.rows))
         #Loading up the blank and adding it to sprite group
         Blank.init()
         blankInitial = self.puzzleWidth * (7/8)
@@ -142,7 +142,7 @@ class Race(object):
                 for i in range(15):
                     x, y = self.coords[i][0], self.coords[i][1]
                     index = self.board[i]
-                    self.blocks.add(Block(x, y, index))
+                    self.blocks.add(Block(x, y, self.rows, index))
                     blankInitial = self.puzzleWidth * (7/8)
                     self.blocks.add(Blank(blankInitial, blankInitial, self.rows))
                 self.p1Finished = True

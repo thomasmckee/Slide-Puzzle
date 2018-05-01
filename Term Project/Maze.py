@@ -10,7 +10,7 @@ self.maxLevel to 5
 
 class Maze(object):
     def init(self):
-        self.maxLevel = 1
+        self.maxLevel = 5
         self.level = 0
         self.mouseClicks = 0
         self.width = 500
@@ -22,7 +22,6 @@ class Maze(object):
         self.gameMode = 'Maze'
         self.gameWon = False
         self.gameLost = False
-        Block.init()
         self.blocks = pygame.sprite.Group()
         self.rows = 4
         self.blockWidth = self.width / self.rows
