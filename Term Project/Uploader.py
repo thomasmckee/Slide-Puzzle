@@ -53,33 +53,40 @@ class Uploader(object):
         green = (0, 255, 0)
         red = (255, 0, 0)
         white = (255, 255, 255)
-        yellow = (255, 255, 0)
+        blue2 = (43, 108, 119)
+        blue3 = (156, 199, 211)
+        grey = (61, 61, 61)
         
         screenrect = (0, 0, 500, 600)
-        pygame.draw.rect(screen, white, screenrect)
+        pygame.draw.rect(screen, blue3, screenrect)
         
         inputrect = (100, 200, 300, 50)
-        pygame.draw.rect(screen, black, inputrect, 3)
+        pygame.draw.rect(screen, white, inputrect)
+        pygame.draw.rect(screen, grey, inputrect, 3)
         
         myfont = pygame.font.SysFont('Arial', 35)
         filetext = myfont.render(self.tempName, True, black)
-        screen.blit(filetext, (110, 200))
+        filetextrect = filetext.get_rect(midleft=(110, 225))
+        screen.blit(filetext, filetextrect)
         
         menurect = (150, 400, 200, 100)
-        pygame.draw.rect(screen, black, menurect, 3)
+        pygame.draw.rect(screen, blue2, menurect)
+        pygame.draw.rect(screen, grey, menurect, 5)
         
         menutext = myfont.render('Menu', True, black)
-        screen.blit(menutext, (210, 430))
+        menutextrect = menutext.get_rect(center=(250, 450))
+        screen.blit(menutext, menutextrect)
         
         dirtext = myfont.render('Enter file name:', True, black)
-        screen.blit(dirtext, (150, 150))
-        
+        dirtextrect = dirtext.get_rect(center=(250, 150))
+        screen.blit(dirtext, dirtextrect)
+        msgtext = myfont.render('', False, black)
         if self.invalidName:
             msgtext = myfont.render('Invalid File Name', True, red)
         elif self.invalidFile:
             msgtext = myfont.render('Invalid File Type', True, red)
         elif self.validName:
             msgtext = myfont.render('Upload successful', True, green)
-        
+        msgtextrect = msgtext.get_rect(center=(250, 300))
         if self.invalidFile or self.invalidName or self.validName:
-            screen.blit(msgtext, (130, 250))
+            screen.blit(msgtext, msgtextrect)

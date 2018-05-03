@@ -71,8 +71,10 @@ class Image(object):
             return
         #Option to return to menu if game is lost
         if self.gameWon:
-            if 175 < x < 325 and 312 < y < 388:
+            if 0 < x < 166 and 500 < y < 600:
                 self.gameMode = 'Menu'
+            if x > 333 and y > 500:
+                self.init(self)
             return
         #Menu button in game
         if 0 < x < 166 and 500 < y < 600:
@@ -154,29 +156,38 @@ class Image(object):
         green = (0, 255, 0)
         red = (255, 0, 0)
         white = (255, 255, 255)
+        blue2 = (43, 108, 119)
+        blue3 = (156, 199, 211)
+        grey = (61, 61, 61)
         myfont = pygame.font.SysFont('Arial', 35)
-        if self.gameWon: # Displaying a message when game is won
-            r = (0, 0, self.width, self.height)
-            pygame.draw.rect(screen, white, r)
-            winfont = pygame.font.SysFont('Arial', 60)
-            wintext = winfont.render('You Won!', True, green)
-            screen.blit(wintext, (150, 150))
-            pygame.draw.rect(screen, black, (175, 312.5, 150, 75), 5)
-            #Creating a button to return to menu once won
-            menutext = myfont.render('Menu', True, black)
-            screen.blit(menutext, (215, 330))
-            return
         #Drawing option boxes at bottom of screen
-        pygame.draw.rect(screen, blue, (0, 500, 500, 100))
-        pygame.draw.line(screen, black, (166, 500), (166, 600), 5)
-        pygame.draw.line(screen, black, (333, 500), (333, 600), 5)
+        pygame.draw.rect(screen, blue3, (0, 500, 500, 100))
+        pygame.draw.line(screen, grey, (166, 500), (166, 600), 5)
+        pygame.draw.line(screen, grey, (333, 500), (333, 600), 5)
         self.blocks.draw(screen)
         textsurface1 = myfont.render('Hint', True, black)
         textsurface2 = myfont.render('Menu', True, black)
         textsurface3 = myfont.render('Solve', True, black)
-        screen.blit(textsurface1, (390, 530))
-        screen.blit(textsurface2, (45, 530))
-        screen.blit(textsurface3, (215, 530))
+        ts1rect = textsurface1.get_rect(center=(416, 550))
+        ts2rect = textsurface2.get_rect(center=(83, 550))
+        ts3rect = textsurface3.get_rect(center=(250, 550))
+        screen.blit(textsurface1, ts1rect)
+        screen.blit(textsurface2, ts2rect)
+        screen.blit(textsurface3, ts3rect)
+        #Drawing win screen
+        if self.gameWon:
+            pygame.draw.rect(screen, blue3, (170, 500, 500, 100))
+            winrect = (166, 500, 166, 100)
+            pygame.draw.rect(screen, black, winrect)
+            pygame.draw.line(screen, grey, (333, 500), (333, 600), 5)
+            pygame.draw.line(screen, grey, (166, 500), (166, 600), 5)
+            winfont = pygame.font.SysFont('Arial', 35)
+            wintext = winfont.render('You Won!', True, green)
+            wintextrect = wintext.get_rect(center=(250,550))
+            screen.blit(wintext, wintextrect)
+            nextleveltext = myfont.render('Play Again', True, black)
+            nextleveltextrect = nextleveltext.get_rect(center=(416, 550))
+            screen.blit(nextleveltext, nextleveltextrect)
         #Drawing solve step
         if self.solve:
             self.star.draw(screen)

@@ -10,7 +10,7 @@ self.maxLevel to 5
 
 class Maze(object):
     def init(self):
-        self.maxLevel = 5
+        self.maxLevel = 6
         self.level = 0
         self.mouseClicks = 0
         self.width = 500
@@ -258,12 +258,26 @@ class Maze(object):
         #Out of bounds check
         if not 0 < x < self.width or not 0 < y < self.height:
             return
-        #Option to return to level select if game is won or lost
+        #Options after winning/losing
         if self.gameWon or self.gameLost:
-            if 175 < x < 325 and 312 < y < 388:
+            #option to return to level select
+            if 0 < x < 166 and y > 500:
                 self.level = 0
                 self.gameWon = False
                 self.gameLost = False
+            if 333 < x < 500 and y > 500:
+                #If won, option to return to next level
+                if self.gameWon:
+                    if self.level in [5, 'RAND']:
+                        self.level = 'RAND'
+                    if self.level < 5:
+                        self.level += 1
+                    self.gameWon = False
+                    self.getLevelBlocks(self, self.level)
+                #If lost, option to restart level
+                if self.gameLost:
+                    self.gameLost = False
+                    self.getLevelBlocks(self, self.level)
             return
         #Can't move blocks while mouse is moving:
         if self.move != None:
@@ -474,14 +488,19 @@ class Maze(object):
         red = (255, 0, 0)
         white = (255, 255, 255)
         yellow = (255, 255, 0)
+        blue2 = (43, 108, 119)
+        blue3 = (156, 199, 211)
+        grey = (61, 61, 61)
+        purple = (130, 52, 150)
         #Creating a font
         myfont = pygame.font.SysFont('Arial', 35)
-        if self.level == 0:
-            #Drawing level selection screen
+        myfont2 = pygame.font.SysFont('Arial', 60, True)
+        if self.level == 0: #Drawing level selection screen
             r = (0, 0, self.width, self.height)
-            pygame.draw.rect(screen, white, r)
-            titletext = myfont.render('Select Level:', True, black)
-            screen.blit(titletext, (170, 100))
+            pygame.draw.rect(screen, blue3, r)
+            titletext = myfont2.render('Select Level:', True, black)
+            titletextrect = titletext.get_rect(center=(250, 100))
+            screen.blit(titletext, titletextrect)
             rls = [ (25, 225, 50, 50),
                     (125, 225, 50, 50),
                     (225, 225, 50, 50),
@@ -495,40 +514,24 @@ class Maze(object):
                 if i + 1 == self.maxLevel:
                     color = yellow
                 pygame.draw.rect(screen, color, rls[i])
-                pygame.draw.rect(screen, black, rls[i], 5)
+                pygame.draw.rect(screen, grey, rls[i], 5)
                 leveltext = myfont.render('%d'%(i+1), True, black)
-                screen.blit(leveltext, (42+(i*100), 228))
+                leveltextrect = leveltext.get_rect(center=(50+(i*100), 250))
+                screen.blit(leveltext, leveltextrect)
             #Drawing menu and random button
             menurect = (175, 500, 150, 75)
-            pygame.draw.rect(screen, black, menurect, 5)
+            pygame.draw.rect(screen, blue2, menurect)
+            pygame.draw.rect(screen, grey, menurect, 5)
             menutext = myfont.render('Menu', True, black)
-            screen.blit(menutext, (215, 517))
+            menutextrect = menutext.get_rect(center=(250, 537.5))
+            screen.blit(menutext, menutextrect)
             randomrect = (175, 350, 150, 75)
-            pygame.draw.rect(screen, black, randomrect, 5)
+            pygame.draw.rect(screen, purple, randomrect)
+            pygame.draw.rect(screen, grey, randomrect, 5)
             randomtext = myfont.render('Random', True, black)
-            screen.blit(randomtext, (195, 365))
+            randomtextrect = randomtext.get_rect(center=(250, 387.5))
+            screen.blit(randomtext, randomtextrect)
             return 
-        #Drawing win and lose screens, with option to return to level selection
-        if self.gameLost:
-            r = (0, 0, self.width, self.height)
-            pygame.draw.rect(screen, white, r)
-            lossfont = pygame.font.SysFont('Arial', 60)
-            losstext = lossfont.render('You Lost!', True, red)
-            screen.blit(losstext, (150, 150))
-            pygame.draw.rect(screen, black, (175, 312.5, 150, 75), 5)
-            menutext = myfont.render('Levels', True, black)
-            screen.blit(menutext, (210, 330))
-            return
-        if self.gameWon:
-            r = (0, 0, self.width, self.height)
-            pygame.draw.rect(screen, white, r)
-            winfont = pygame.font.SysFont('Arial', 60)
-            wintext = winfont.render('You Won!', True, green)
-            screen.blit(wintext, (150, 150))
-            pygame.draw.rect(screen, black, (175, 312.5, 150, 75), 5)
-            menutext = myfont.render('Levels', True, black)
-            screen.blit(menutext, (210, 330))
-            return
         #Drawing blocks
         self.blocks.draw(screen)
         #Fixing one weird graphical issue with scaling
@@ -540,21 +543,54 @@ class Maze(object):
         #Drawing enemies
         self.enemies.draw(screen)
         #Drawing remaining moves/time, and menu button
-        pygame.draw.rect(screen, blue, (0, 500, 500, 100))
-        pygame.draw.line(screen, black, (166, 500), (166, 600), 5)
-        pygame.draw.line(screen, black, (333, 500), (333, 600), 5)
+        pygame.draw.rect(screen, blue3, (0, 500, 500, 100))
+        pygame.draw.line(screen, grey, (166, 500), (166, 600), 5)
+        pygame.draw.line(screen, grey, (333, 500), (333, 600), 5)
         pygame.draw.line(screen, black, (0, 500), (500, 500), 5)
         L1 = (1/5)*self.blockWidth
         L2 = (2/5)*self.blockWidth
         L3 = ((self.rows*2-1) / (self.rows*2))*self.width
-        textsurface1 = myfont.render(  'Moves: %d' %self.remainingMoves, 
+        textsurface1 = myfont.render(   'Moves: %d' %self.remainingMoves, 
                                         True, black)
         textsurface2 = myfont.render('Levels', True, black)
         textsurface3 = myfont.render(   'Time: %d' %self.remainingTime,
                                         True, black)
-        screen.blit(textsurface1, (355, 530))
-        screen.blit(textsurface2, (40, 530))
-        screen.blit(textsurface3, (195, 530))
+        ts1rect = textsurface1.get_rect(center=(416, 550))
+        ts2rect = textsurface2.get_rect(center=(83, 550))
+        ts3rect = textsurface3.get_rect(center=(250, 550))
+        screen.blit(textsurface1, ts1rect)
+        screen.blit(textsurface2, ts2rect)
+        screen.blit(textsurface3, ts3rect)
+        #Drawing lose screen, with option to try again or return to selection
+        if self.gameLost:
+            pygame.draw.rect(screen, blue3, (170, 500, 500, 100))
+            pygame.draw.line(screen, black, (0, 500), (500, 500), 5)
+            lossrect = (166, 500, 166, 100)
+            pygame.draw.rect(screen, black, lossrect)
+            pygame.draw.line(screen, grey, (166, 500), (166, 600), 5)
+            pygame.draw.line(screen, grey, (333, 500), (333, 600), 5)
+            lossfont = pygame.font.SysFont('Arial', 35)
+            losstext = lossfont.render('You Lost!', True, red)
+            losstextrect = losstext.get_rect(center=(250,550))
+            screen.blit(losstext, losstextrect)
+            tryagaintext = myfont.render('Try Again', True, black)
+            tryagaintextrect = tryagaintext.get_rect(center=(416, 550))
+            screen.blit(tryagaintext, tryagaintextrect)
+        #Drawing win screen, with option to go to next level or return to select
+        if self.gameWon:
+            pygame.draw.rect(screen, blue3, (170, 500, 500, 100))
+            pygame.draw.line(screen, black, (0, 500), (500, 500), 5)
+            winrect = (166, 500, 166, 100)
+            pygame.draw.rect(screen, black, winrect)
+            pygame.draw.line(screen, grey, (166, 500), (166, 600), 5)
+            pygame.draw.line(screen, grey, (333, 500), (333, 600), 5)
+            winfont = pygame.font.SysFont('Arial', 35)
+            wintext = winfont.render('You Won!', True, green)
+            wintextrect = wintext.get_rect(center=(250,550))
+            screen.blit(wintext, wintextrect)
+            nextleveltext = myfont.render('Next Level', True, black)
+            nextleveltextrect = nextleveltext.get_rect(center=(416, 550))
+            screen.blit(nextleveltext, nextleveltextrect)
         #Drawing special level conditions
         self.points.draw(screen)
         self.traps.draw(screen)
