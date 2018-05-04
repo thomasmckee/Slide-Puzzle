@@ -10,7 +10,7 @@ self.maxLevel to 5
 
 class Maze(object):
     def init(self):
-        self.maxLevel = 6
+        self.maxLevel = 1
         self.level = 0
         self.mouseClicks = 0
         self.width = 500
@@ -270,7 +270,7 @@ class Maze(object):
                 if self.gameWon:
                     if self.level in [5, 'RAND']:
                         self.level = 'RAND'
-                    if self.level < 5:
+                    else:
                         self.level += 1
                     self.gameWon = False
                     self.getLevelBlocks(self, self.level)
